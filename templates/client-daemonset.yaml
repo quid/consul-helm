@@ -58,6 +58,10 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
+            - name: HOST_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
             - name: NAMESPACE
               valueFrom:
                 fieldRef:
@@ -74,7 +78,7 @@ spec:
 
               exec /bin/consul agent \
                 -node="${NODE}" \
-                -advertise="${POD_IP}" \
+                -advertise="${HOST_IP}" \
                 -bind=0.0.0.0 \
                 -client=0.0.0.0 \
                 {{- if .Values.client.grpc }}
@@ -125,15 +129,31 @@ spec:
               hostPort: 8502
               name: grpc
             - containerPort: 8301
-              name: serflan
+              hostPort: 8301
+              name: serflan-tcp
+              protocol: "TCP"
+            - containerPort: 8302
+              hostPort: 8302
+              name: serfwan-tcp
+              protocol: "TCP"
+            - containerPort: 8301
+              hostPort: 8301
+              name: serflan-udp
+              protocol: "UDP"
             - containerPort: 8302
               name: serfwan
+              hostPort: 8302
+              name: serfwan-udp
+              protocol: "UDP"
             - containerPort: 8300
+              hostPort: 8300
               name: server
             - containerPort: 8600
+              hostPort: 8600
               name: dns-tcp
               protocol: "TCP"
             - containerPort: 8600
+              hostPort: 8600
               name: dns-udp
               protocol: "UDP"
           readinessProbe:
