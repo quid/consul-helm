@@ -108,6 +108,10 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
+            - name: HOST_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
             - name: NAMESPACE
               valueFrom:
                 fieldRef:
@@ -140,7 +144,7 @@ spec:
               CONSUL_FULLNAME="{{template "consul.fullname" . }}"
 
               exec /bin/consul agent \
-                -advertise="${POD_IP}" \
+                -advertise="${HOST_IP}" \
                 -bind=0.0.0.0 \
                 -bootstrap-expect={{ .Values.server.bootstrapExpect }} \
                 {{- if .Values.global.tls.enabled }}
@@ -190,6 +194,9 @@ spec:
                 {{- end }}
                 {{- range $index := until (.Values.server.replicas | int) }}
                 -retry-join=${CONSUL_FULLNAME}-server-{{ $index }}.${CONSUL_FULLNAME}-server.${NAMESPACE}.svc \
+                {{- end }}
+                {{- range $.Values.server.join }}
+                -retry-join={{ . }} \
                 {{- end }}
                 -server
           volumeMounts:
