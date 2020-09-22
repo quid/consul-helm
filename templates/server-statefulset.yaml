@@ -122,6 +122,10 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
+            - name: HOST_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
             - name: NAMESPACE
               valueFrom:
                 fieldRef:
@@ -205,6 +209,9 @@ spec:
                 {{- $serverSerfLANPort  := .Values.server.ports.serflan.port -}}
                 {{- range $index := until (.Values.server.replicas | int) }}
                 -retry-join="${CONSUL_FULLNAME}-server-{{ $index }}.${CONSUL_FULLNAME}-server.${NAMESPACE}.svc:{{ $serverSerfLANPort }}" \
+                {{- end }}
+                {{- range $.Values.server.join }}
+                -retry-join={{ . }} \
                 {{- end }}
                 -serf-lan-port={{ .Values.server.ports.serflan.port }} \
                 -server
