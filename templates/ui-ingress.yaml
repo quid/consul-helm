@@ -1,0 +1,28 @@
+{{- if (and (or (and (ne (.Values.server.enabled | toString) "-") .Values.server.enabled) (and (eq (.Values.server.enabled | toString) "-") .Values.global.enabled)) (or (and (ne (.Values.ui.enabled | toString) "-") .Values.ui.enabled) (and (eq (.Values.ui.enabled | toString) "-") .Values.global.enabled)) (or (and (ne (.Values.ui.service.enabled | toString) "-") .Values.ui.service.enabled) (and (eq (.Values.ui.service.enabled | toString) "-") .Values.global.enabled))) }}
+# UI Ingress for Consul Server
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ template "consul.fullname" . }}-ui
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "consul.name" . }}
+    chart: {{ template "consul.chart" . }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+    component: ui
+  annotations:
+    kubernetes.io/ingress.class: nginx-internal
+    kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - host: "{{ .Values.ui.hostname }}"
+    http:
+      paths:
+      - backend:
+          serviceName: {{ template "consul.fullname" . }}-server
+          servicePort: 8500
+        path: /
+{{- end }}
