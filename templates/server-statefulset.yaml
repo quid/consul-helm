@@ -243,7 +243,13 @@ spec:
               name: serflan-udp
               protocol: "UDP"
             - containerPort: 8302
-              name: serfwan
+              hostPort: 8302
+              name: serfwan-tcp
+              protocol: "TCP"
+            - containerPort: 8302
+              hostPort: 8302
+              name: serfwan-udp
+              protocol: "UDP"
             - containerPort: 8300
               hostPort: 8300
               name: server
