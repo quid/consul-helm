@@ -20,9 +20,18 @@ rules:
 {{- if .Values.global.enablePodSecurityPolicies }}
 - apiGroups: ["policy"]
   resources: ["podsecuritypolicies"]
-  resourcesName:
+  resourceNames:
   - {{ template "consul.fullname" . }}-connect-injector-webhook
   verbs:
   - use
+{{- end }}
+{{- if and (or .Values.global.acls.manageSystemACLs .Values.global.bootstrapACLs) .Values.global.enableConsulNamespaces }}
+- apiGroups: [""]
+  resources:
+    - secrets
+  resourceNames:
+    - {{ template "consul.fullname" . }}-connect-inject-acl-token
+  verbs:
+    - get
 {{- end }}
 {{- end }}

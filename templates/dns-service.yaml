@@ -10,7 +10,14 @@ metadata:
     chart: {{ template "consul.chart" . }}
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
+  {{- if .Values.dns.annotations }}
+  annotations:
+    {{ tpl .Values.dns.annotations . | nindent 4 | trim }}
+  {{- end }}
 spec:
+{{- if .Values.dns.clusterIP }}
+  clusterIP: {{ .Values.dns.clusterIP }}
+{{- end }}
   ports:
     - name: dns-tcp
       port: 53
