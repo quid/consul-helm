@@ -1,0 +1,39 @@
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" }}
+apiVersion: networking.k8s.io/v1beta1
+{{ else }}
+apiVersion: extensions/v1beta1
+{{ end -}}
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx-internal
+    kubernetes.io/tls-acme: "false"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+  labels:
+    app: {{ .Chart.Name }}-ui
+    environment: {{ .Values.env }}
+    role: ui
+    stack: {{ .Chart.Name }}
+  name: {{ .Chart.Name }}-ui
+  namespace: {{ .Values.namespace }}
+spec:
+  rules:
+    - host: {{ .Chart.Name }}-web.{{ .Values.env }}.{{ .Values.domain }}
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: {{ .Chart.Name }}-server
+              servicePort: 8500
+    - host: {{ .Chart.Name }}-web.{{ .Values.domain }}
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: {{ .Chart.Name }}-server
+              servicePort: 8500
+  tls:
+    - hosts:
+      - {{ .Chart.Name }}-web.{{ .Values.domain }}
+      secretName: tls-in.quid.com
