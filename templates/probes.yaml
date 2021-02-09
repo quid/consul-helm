@@ -1,0 +1,67 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: consul-dns
+  labels:
+    release: po
+spec:
+  jobName: blackbox-exporter
+  module: dns-consul
+  prober:
+    url: {{ .Values.prober }}
+  targets:
+    staticConfig:
+      static:
+        - consul-dns.{{ .Release.Namespace }}.svc
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: consul-slb
+  labels:
+    release: po
+spec:
+  jobName: blackbox-exporter
+  module: tcp_connect
+  prober:
+    url: {{ .Values.prober }}
+  targets:
+    staticConfig:
+      static:
+        - consul-slb.{{ .Release.Namespace }}.svc:80
+        - consul-slb.{{ .Release.Namespace }}.svc:8300
+        - consul-slb.{{ .Release.Namespace }}.svc:8301
+        - consul-slb.{{ .Release.Namespace }}.svc:8500
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: consul-https
+  labels:
+    release: po
+spec:
+  jobName: blackbox-exporter
+  module: https_2xx
+  prober:
+    url: {{ .Values.prober }}
+  targets:
+    staticConfig:
+      static:
+        - https://consul-web.in.quid.com/v1/status/leader
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: consul-ingress
+  labels:
+    release: po
+spec:
+  jobName: blackbox-exporter
+  module: http_any
+  prober:
+    url: {{ .Values.prober }}
+  targets:
+    ingress:
+      namespaceSelector:
+        matchNames:
+          - {{ .Release.Namespace }}

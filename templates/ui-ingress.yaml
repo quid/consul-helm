@@ -1,3 +1,4 @@
+{{- if .Values.ui.enabled }}
 {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" }}
 apiVersion: networking.k8s.io/v1beta1
 {{ else }}
@@ -37,3 +38,4 @@ spec:
     - hosts:
       - {{ .Chart.Name }}-web.{{ .Values.domain }}
       secretName: tls-in.quid.com
+{{ end -}}
